@@ -1,0 +1,87 @@
+'''
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn import linear_model
+import numpy as np
+import func_library
+
+
+
+
+
+def main():
+    bond_yields = pd.DataFrame
+    bond_futures = pd.DataFrame
+    tlt_price = pd.DataFrame
+    fed_rate = pd.DataFrame
+    inflation = pd.DataFrame
+
+    bond_yields, bond_futures, tlt_price, fed_rate, inflation = read_files(bond_yields, bond_futures, tlt_price,
+                                                                            fed_rate, inflation)
+
+
+
+
+def read_files(b_yield, b_futures, tlt, fed_rate, inflation_rate):
+    b_yield = pd.read_csv("/Users/Matthew/Downloads/30-year-treasury-bond-rate-yield-chart.csv", header=8)
+    b_yield.columns = ['Date', 'Bond Yield']
+    b_futures = pd.read_csv("/Users/Matthew/Downloads/30-year-treasury-futures.csv", header=10)
+    b_futures.columns = ['Date', 'Bond Price']
+    tlt = pd.read_csv("/Users/Matthew/Downloads/TLT-2.csv")
+    fed_rate = pd.read_csv("/Users/Matthew/Downloads/FEDFUNDS.csv")
+    fed_rate.columns = ['Date', 'Fed Rate']
+    fed_rate = fed_rate.fillna(method='ffill')
+    inflation_rate = pd.read_csv("/Users/Matthew/Downloads/Inflation Data - CPIAUCSL.csv")
+    return b_yield, b_futures, tlt, fed_rate, inflation_rate
+
+
+
+
+
+bond_comparisons = pd.merge(pd.merge(
+    pd.merge(pd.merge(bond_yields, bond_futures, how="outer", on="Date"),
+             TLT_price[['Date','Close']].copy(),how="outer",on="Date"),
+                    FED_Funds,how="outer",on="Date"),inflation,how="outer", on="Date")
+
+
+bond_comparisons = bond_comparisons.dropna(subset=['Bond Yield','Bond Price'])
+bond_comparisons['Fed Rate'].fillna(method='ffill', inplace=True)
+bond_comparisons['Inflation Rate'].fillna(method='ffill', inplace=True)
+
+
+bond_comparisons = bond_comparisons.fillna(0)
+
+
+
+print(bond_comparisons)
+
+def regression():
+    X = bond_comparisons[['Inflation Rate']]
+    Y = bond_comparisons['Close']
+    #X = bond_comparisons[['Bond Yield', 'Bond Price', 'Fed Rate', 'Inflation Rate']]
+    #Y = bond_comparisons['Close']
+
+    regr = linear_model.LinearRegression()
+    regr.fit(X,Y)
+
+    print('Intercept: ', regr.intercept_)
+    print('Coefficients: ', regr.coef_)
+    print('Prediction', regr.predict([[120]]))
+
+regression()
+
+
+def plot_creator():
+    compare_FED_to_yield = pd.merge(bond_yields, FED_Funds, how="outer", on="Date")
+    compare_FED_to_yield.plot.scatter(x='Bond Yield', y='Fed Rate')
+    bond_comparisons.plot.line(x='Date')
+    bond_comparisons.plot.scatter(x='Bond Yield', y='Bond Price')
+    bond_comparisons.plot.scatter(x='Bond Yield', y='$TLT')
+
+
+bond_comparisons.plot.line(x='Date')
+
+
+plt.show()
+
+'''
